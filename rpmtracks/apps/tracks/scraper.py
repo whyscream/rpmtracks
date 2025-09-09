@@ -112,6 +112,31 @@ def duration_str_to_timedelta(duration_str: str):
     minutes, seconds = map(int, duration_str.split(":"))
     return timedelta(minutes=minutes, seconds=seconds)
 
+def workout_str_to_enum(workout_str: str):
+    """Convert a workout string to the corresponding Track.Workout enum value."""
+    if not workout_str:
+        return Track.Workout.NONE
+
+    workout_str = workout_str.strip().lower()
+    for choice in Track.Workout.choices:
+        if choice[1].lower() in workout_str:
+            return choice[0]
+
+    # Find workout substring matches
+    mapping = {
+        Track.Workout.RIDE_HOME: ["cool down", "stretch", "ride home", "flush", "outro", "recovery"],
+        Track.Workout.WARMUP: ["warmup", "warm-up", "warm up", "pack ride"],
+        Track.Workout.MOUNTAIN_CLIMB: ["mountain climb", "climb"],
+        Track.Workout.SPEED_WORK: ["speed work", "speed", "rapid revs"],
+        Track.Workout.FREE_SPIN: ["free spin", "light spin"],
+    }
+    for enum_value, substrings in mapping.items():
+        for substring in substrings:
+            if substring in workout_str:
+                return enum_value
+
+    return Track.Workout.UNKNOWN
+
 def import_tracks():
     """Scrape tracks and save them to the database."""
     tracks_data = scrape_tracks()
@@ -131,7 +156,8 @@ def import_tracks():
                 "author": track_data["author"],
                 "cover_artist": track_data["cover_artist"] or "",
                 "duration": duration_str_to_timedelta(track_data["duration"]),
-                "notes": f"workout={track_data["workout"]}" if track_data["workout"] else "",
+                "workout": workout_str_to_enum(track_data["workout"]),
+                "notes": f"{track_data["workout"]}" if track_data["workout"] else "",
             },
         )
         if _track_created:

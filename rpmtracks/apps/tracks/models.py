@@ -24,10 +24,16 @@ class Track(models.Model):
     class Workout(models.TextChoices):
         WALK_IN = "Walk in", "Walk in"
         WARMUP = "Warmup", "Warmup"
-        MOUNTAIN_CLIMB = "Mountain climb", "Mountain climb"
+        PACE = "Pace", "Pace"
+        HILLS = "Hills", "Hills"
+        MIXED_TERRAIN = "Mixed terrain", "Mixed terrain"
+        INTERVALS = "Intervals", "Intervals"
         SPEED_WORK = "Speed work", "Speed work"
-        RIDE_HOME = "Ride home", "Ride home (cool down/stretch)"
-        UNKNOWN = "", ""
+        FREE_SPIN = "Free spin", "Free spin"
+        MOUNTAIN_CLIMB = "Mountain climb", "Mountain climb"
+        RIDE_HOME = "Ride home", "Ride home (cool down)"
+        UNKNOWN = "Unknown", "Unknown"
+        NONE = "", "-"
 
     number = models.CharField(max_length=32, help_text="Track number within the release, can be non-numeric for bonus tracks")
     release = models.ForeignKey(Release, on_delete=models.CASCADE, related_name="tracks")
