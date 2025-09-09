@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from apps.tracks.scraper import scrape_tracks
+from apps.tracks.scraper import import_tracks
 
 
 class Command(BaseCommand):
@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE("Starting the scraping process..."))
-        tracks = scrape_tracks()
+        tracks = import_tracks()
         releases = []
         for track in tracks:
             if track and track["release"] not in releases:

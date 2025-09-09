@@ -40,6 +40,10 @@ def parse_track(row: Tag) -> dict | None:
     else:
         raise ValueError(f"Unexpected number of columns: {len(cols)}")
 
+    if track_id == "IMAGE":
+        # This is a header row, skip it
+        return None
+
     # remove duplicate durations
     if match := re.match(r"(\d+:\d{2})", track_duration):
         track_duration = match.group(1)
@@ -49,18 +53,20 @@ def parse_track(row: Tag) -> dict | None:
     release = None
     track_number = None
     # track id RPM or BB + all numerics is a normal track
-    if match := re.match(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>\d{2})", track_id):
+    if match := re.fullmatch(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>\d{2})", track_id):
         branding = match.group("branding")
         release = match.group("release")
         track_number = match.group("track_number")
     # track id RPM + numeric + random string is a bonus track of sorts
-    elif match := re.match(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>.*)", track_id):
+    elif match := re.fullmatch(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>.*)", track_id):
         branding = match.group("branding")
         release = match.group("release")
         track_number = match.group("track_number")
     elif "RPMUN" in track_id:
         # TODO: No idea what this is, skipping for now
         return None
+    else:
+        raise ValueError(f"Unexpected track ID: {track_id}")
 
     track = {
         "id": track_id,
@@ -99,6 +105,38 @@ def scrape_tracks() -> list[dict]:
     response.raise_for_status()  # Ensure we raise an error for bad responses
     return parse_tracks_from_html(response.text)
 
+
+def duration_str_to_timedelta(duration_str: str):
+    """Convert a duration string (MM:SS) to a timedelta object."""
+    minutes, seconds = map(int, duration_str.split(":"))
+    return timedelta(minutes=minutes, seconds=seconds)
+
+def import_tracks():
+    """Scrape tracks and save them to the database."""
+    tracks_data = scrape_tracks()
+    for track_data in tracks_data:
+        release, _release_created = Release.objects.update_or_create(
+            number=int(track_data["release"]),
+            branding=track_data["branding"],
+        )
+        if _release_created:
+            logger.info(f"Created new release: {release}")
+
+        # track, _track_created = Track.objects.update_or_create(
+        #     number=track_data["track_number"],
+        #     release=release,
+        #     defaults={
+        #         "title": track_data["name"],
+        #         "author": track_data["author"],
+        #         "cover_artist": track_data["cover_artist"] or "",
+        #         "duration": duration_str_to_timedelta(track_data["duration"]),
+        #         "notes": f"workout={track_data["workout"]}" if track_data["workout"] else "",
+        #     },
+        # )
+        # if _track_created:
+        #     logger.info(f"Created new track: {track} in release {release}")
+
+    return tracks_data
 
 if __name__ == "__main__":
     tracks = scrape_tracks()

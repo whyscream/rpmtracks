@@ -1,6 +1,11 @@
 from django.db import models
 
 class Release(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("number", "branding"), name="release_number_branding"),
+        ]
+
     class Branding(models.TextChoices):
         RPM = "RPM", "RPM"
         BB = "BB", "Body Bike",
