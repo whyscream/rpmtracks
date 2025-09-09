@@ -11,6 +11,9 @@ class Release(models.Model):
     description = models.CharField(max_length=255, blank=True)
     started_at = models.DateField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.branding} {self.number:02d}"
+
 
 class Track(models.Model):
     class Workout(models.TextChoices):
@@ -21,7 +24,7 @@ class Track(models.Model):
         RIDE_HOME = "Ride home", "Ride home (cool down/stretch)"
         UNKNOWN = "", ""
 
-    number = models.IntegerField()
+    number = models.CharField(max_length=32, help_text="Track number within the release, can be non-numeric for bonus tracks")
     release = models.ForeignKey(Release, on_delete=models.CASCADE, related_name="tracks")
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
@@ -29,3 +32,6 @@ class Track(models.Model):
     duration = models.DurationField()
     workout = models.CharField(max_length=32, choices=Workout.choices, default=Workout.UNKNOWN)
     notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.release} - {self.number} - {self.title}"

@@ -1,12 +1,23 @@
+import logging
 import re
+from datetime import timedelta
 
 import httpx
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
+
+from .models import Release, Track
+
+logger = logging.getLogger(__name__)
 
 SOURCE_URL = "https://seesaawiki.jp/tracklist/d/RPM"
 
 
-def parse_track(row):
+def parse_track(row: Tag) -> dict | None:
+    """
+    Parse track data from a HTML table row.
+
+    Returns a dictionary with track details or None if the track is to be skipped.
+    """
     cols = row.find_all("td")
     if cols[0].attrs.get("colspan") or cols[0].attrs.get("rowspan"):
         # This is a image column, discard it
@@ -34,22 +45,26 @@ def parse_track(row):
         track_duration = match.group(1)
 
     # Extract RPM release from track_id
+    branding = None
     release = None
     track_number = None
     # track id RPM or BB + all numerics is a normal track
-    if match := re.match(r"(?:RPM|BB)(?P<release>\d+)(?P<track_number>\d{2})", track_id):
+    if match := re.match(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>\d{2})", track_id):
+        branding = match.group("branding")
         release = match.group("release")
         track_number = match.group("track_number")
     # track id RPM + numeric + random string is a bonus track of sorts
-    elif match := re.match(r"(?:RPM|BB)(?P<release>\d+)(?P<track_number>.*)", track_id):
+    elif match := re.match(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>.*)", track_id):
+        branding = match.group("branding")
         release = match.group("release")
         track_number = match.group("track_number")
     elif "RPMUN" in track_id:
-        # No idea what this is, skipping for now
+        # TODO: No idea what this is, skipping for now
         return None
 
     track = {
         "id": track_id,
+        "branding": branding,
         "release": release,
         "track_number": track_number,
         "name": track_name,
@@ -58,34 +73,34 @@ def parse_track(row):
         "duration": track_duration,
         "workout": track_workout,
     }
-    print(track)
+    logger.debug("Track details: %s", track)
     return track
 
-
-def main():
-    # Request the URL
-    response = httpx.get(SOURCE_URL)
-    # Find the tracklist in the HTML source using beautifulsoup
-    soup = BeautifulSoup(response.text, "html.parser")
+def parse_tracks_from_html(html: str) -> list[dict]:
+    """Parse all tracks from the provided HTML content."""
+    soup = BeautifulSoup(html, "html.parser")
 
     tracklists = []
     tracklists.append(soup.find("table", id="content_block_1"))
     tracklists.append(soup.find("table", id="content_block_4"))
     tracklists.append(soup.find("table", id="content_block_7"))
     tracklists.append(soup.find("table", id="content_block_10"))
-    # Extract the track data from the tracklists
     tracks = []
-    workouts = []
     for tracklist in tracklists:
         for row in tracklist.find_all("tr")[1:]:
             track = parse_track(row)
-            tracks.append(track)
-            if track and track["workout"] not in workouts:
-                workouts.append(track["workout"])
+            if track:
+                tracks.append(track)
+    return tracks
 
-    print(f"Total tracks: {len(tracks)}")
-    print(f"Unique workouts: {workouts}")
+def scrape_tracks() -> list[dict]:
+    """Scrape tracks from the SOURCE_URL."""
+    response = httpx.get(SOURCE_URL)
+    response.raise_for_status()  # Ensure we raise an error for bad responses
+    return parse_tracks_from_html(response.text)
 
 
 if __name__ == "__main__":
-    main()
+    tracks = scrape_tracks()
+    print(tracks)
+    print("Total tracks:", len(tracks))
