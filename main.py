@@ -18,14 +18,14 @@ def parse_track(row):
         track_author = cols[2].get_text(strip=True)
         track_cover_artist = cols[3].get_text(strip=True)
         track_duration = cols[4].get_text(strip=True)
-        track_type = cols[5].get_text(strip=True)
+        track_workout = cols[5].get_text(strip=True)
     elif len(cols) == 5:
         track_id = cols[0].get_text(strip=True)
         track_name = cols[1].get_text(strip=True)
         track_author = cols[2].get_text(strip=True)
         track_cover_artist = None
         track_duration = cols[3].get_text(strip=True)
-        track_type = cols[4].get_text(strip=True)
+        track_workout = cols[4].get_text(strip=True)
     else:
         raise ValueError(f"Unexpected number of columns: {len(cols)}")
 
@@ -56,7 +56,7 @@ def parse_track(row):
         "author": track_author,
         "cover_artist": track_cover_artist,
         "duration": track_duration,
-        "type": track_type,
+        "workout": track_workout,
     }
     print(track)
     return track
@@ -75,12 +75,17 @@ def main():
     tracklists.append(soup.find("table", id="content_block_10"))
     # Extract the track data from the tracklists
     tracks = []
+    workouts = []
     for tracklist in tracklists:
         for row in tracklist.find_all("tr")[1:]:
             track = parse_track(row)
             tracks.append(track)
+            if track and track["workout"] not in workouts:
+                workouts.append(track["workout"])
 
     print(f"Total tracks: {len(tracks)}")
+    print(f"Unique workouts: {workouts}")
+
 
 if __name__ == "__main__":
     main()
