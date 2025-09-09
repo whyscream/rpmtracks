@@ -108,6 +108,7 @@ def scrape_tracks() -> list[dict]:
 
 def duration_str_to_timedelta(duration_str: str):
     """Convert a duration string (MM:SS) to a timedelta object."""
+    duration_str = duration_str.replace(".", ":")
     minutes, seconds = map(int, duration_str.split(":"))
     return timedelta(minutes=minutes, seconds=seconds)
 
@@ -122,19 +123,19 @@ def import_tracks():
         if _release_created:
             logger.info(f"Created new release: {release}")
 
-        # track, _track_created = Track.objects.update_or_create(
-        #     number=track_data["track_number"],
-        #     release=release,
-        #     defaults={
-        #         "title": track_data["name"],
-        #         "author": track_data["author"],
-        #         "cover_artist": track_data["cover_artist"] or "",
-        #         "duration": duration_str_to_timedelta(track_data["duration"]),
-        #         "notes": f"workout={track_data["workout"]}" if track_data["workout"] else "",
-        #     },
-        # )
-        # if _track_created:
-        #     logger.info(f"Created new track: {track} in release {release}")
+        track, _track_created = Track.objects.update_or_create(
+            number=track_data["track_number"],
+            release=release,
+            defaults={
+                "title": track_data["name"],
+                "author": track_data["author"],
+                "cover_artist": track_data["cover_artist"] or "",
+                "duration": duration_str_to_timedelta(track_data["duration"]),
+                "notes": f"workout={track_data["workout"]}" if track_data["workout"] else "",
+            },
+        )
+        if _track_created:
+            logger.info(f"Created new track: {track} in release {release}")
 
     return tracks_data
 
