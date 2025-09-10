@@ -3,7 +3,12 @@
 {% block title %}Track List{% endblock title %}
 
 {% block content %}
-<h1>Track List: {{ release }}</h1>
+<h1>
+    Track List:
+    {% if previous_release %}<a href="{% url 'tracks:list_by_release' previous_release.number %}"><i class="fa-solid fa-angles-left"></i></a>{% endif %}
+    {{ release }}
+    {% if next_release %}<a href="{% url 'tracks:list_by_release' next_release.number %}"><i class="fa-solid fa-angles-right"></i></a>{% endif %}
+</h1>
 <ul>
     {% for track in tracks %}
     <li>
@@ -13,7 +18,6 @@
     <li>No tracks available.</li>
     {% endfor %}
 </ul>
-
 <form method="POST">
     {% csrf_token %}
     {{  select_release_form }}

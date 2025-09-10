@@ -1,0 +1,1 @@
+Fontawesome version is fontawesome-free-7.0.1-web, downloaded from https://fontawesome.com

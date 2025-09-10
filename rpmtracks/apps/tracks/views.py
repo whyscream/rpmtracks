@@ -18,6 +18,8 @@ class TrackListView(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=object_list, **kwargs)
         ctx["release"] = self.release
+        ctx["next_release"] = Release.objects.filter(number__gt=self.release.number).order_by("number").first()
+        ctx["previous_release"] = Release.objects.filter(number__lt=self.release.number).order_by("-number").first()
         ctx["select_release_form"] = self.select_release_form
         return ctx
 
