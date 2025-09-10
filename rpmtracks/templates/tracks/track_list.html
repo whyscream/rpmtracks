@@ -1,0 +1,16 @@
+{%  extends 'base.html' %}
+
+{% block title %}Track List{% endblock title %}
+
+{% block content %}
+<h1>Track List</h1>
+<ul>
+    {% for track in tracks %}
+    <li>
+        <a href="#">{{ track.number }} - {{ track.title }} by {{ track.artist }}</a>
+    </li>
+    {% empty %}
+    <li>No tracks available.</li>
+    {% endfor %}
+</ul>
+{% endblock content %}

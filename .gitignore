@@ -11,3 +11,4 @@ wheels/
 
 # Application data
 rpmtracks/db.sqlite3
+rpmtracks/staticfiles/
