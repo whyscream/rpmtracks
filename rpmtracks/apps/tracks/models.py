@@ -14,7 +14,10 @@ class Release(models.Model):
     number = models.IntegerField()
     branding = models.CharField(max_length=32, choices=Branding.choices, default=Branding.RPM)
     description = models.CharField(max_length=255, blank=True)
-    started_at = models.DateField(null=True, blank=True)
+    release_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text="Timestamp when this record was created")
+    updated_at = models.DateTimeField(auto_now=True, editable=False, help_text="Timestamp when this record was last updated")
+
 
     def __str__(self):
         return f"{self.branding} {self.number:02d}"
@@ -43,6 +46,8 @@ class Track(models.Model):
     duration = models.DurationField()
     workout = models.CharField(max_length=32, choices=Workout.choices, default=Workout.UNKNOWN)
     notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text="Timestamp when this record was created")
+    updated_at = models.DateTimeField(auto_now=True, editable=False, help_text="Timestamp when this record was last updated")
 
     def __str__(self):
         return f"{self.release} - {self.number} - {self.title}"
