@@ -1,12 +1,38 @@
-from django.views.generic import ListView
+from django.shortcuts import redirect
+from django.views.generic import ListView, RedirectView
 
-from .models import Track
-
+from .forms import SelectReleaseForm
+from .models import Track, Release
 
 class TrackListView(ListView):
     template_name = "tracks/track_list.html"
     context_object_name = "tracks"
+    http_method_names = ["get", "post", "head", "options", "trace"]
+
+    release = None
+    select_release_form = None
 
     def get_queryset(self):
-        latest_release = Track.objects.order_by("-number").first()
-        return Track.objects.filter(release=latest_release.release)
+        return Track.objects.filter(release=self.release)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=object_list, **kwargs)
+        ctx["release"] = self.release
+        ctx["select_release_form"] = self.select_release_form
+        return ctx
+
+    def get(self, request, release_number=None, *args, **kwargs):
+        if release_number is not None:
+            self.release = Release.objects.get(number=release_number)
+        else:
+            self.release = Release.objects.latest("number")
+
+        self.select_release_form = SelectReleaseForm(initial={"release": self.release})
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = SelectReleaseForm(request.POST)
+        if form.is_valid():
+            return redirect("tracks:list_by_release", release_number=form.cleaned_data["release"].number)
+
+        return self.get(request, *args, **kwargs)

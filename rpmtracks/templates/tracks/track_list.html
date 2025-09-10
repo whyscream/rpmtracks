@@ -3,14 +3,20 @@
 {% block title %}Track List{% endblock title %}
 
 {% block content %}
-<h1>Track List</h1>
+<h1>Track List: {{ release }}</h1>
 <ul>
     {% for track in tracks %}
     <li>
-        <a href="#">{{ track.number }} - {{ track.title }} by {{ track.artist }}</a>
+        <a href="#">{{ track.number }} - {{ track.title }} by {{ track.author }}</a>
     </li>
     {% empty %}
     <li>No tracks available.</li>
     {% endfor %}
 </ul>
+
+<form method="POST">
+    {% csrf_token %}
+    {{  select_release_form }}
+    <button type="submit">Show Release</button>
+</form>
 {% endblock content %}
