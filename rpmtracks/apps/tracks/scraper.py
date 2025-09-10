@@ -156,10 +156,20 @@ def import_tracks():
                 "author": track_data["author"],
                 "cover_artist": track_data["cover_artist"] or "",
                 "duration": duration_str_to_timedelta(track_data["duration"]),
-                "workout": workout_str_to_enum(track_data["workout"]),
-                "notes": f"{track_data["workout"]}" if track_data["workout"] else "",
-            },
+            }
         )
+
+        # Only update fields 'workout' and 'notes' if they are not set
+        track_updated = False
+        if track.workout in [Track.Workout.UNKNOWN, Track.Workout.NONE]:
+            track.workout = workout_str_to_enum(track_data["workout"])
+            track_updated = True
+        if not track.notes and track_data["workout"]:
+            track.notes = track_data["workout"]
+            track_updated = True
+        if track_updated:
+            track.save(update_fields=["workout", "notes"])
+
         if _track_created:
             logger.info(f"Created new track: {track} in release {release}")
 
