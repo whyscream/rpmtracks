@@ -9,7 +9,7 @@ from .models import Release, Track
 
 logger = logging.getLogger(__name__)
 
-SOURCE_URL = "https://seesaawiki.jp/tracklist/d/RPM"
+SCRAPE_URL = "https://seesaawiki.jp/tracklist/d/RPM"
 
 
 def parse_track(row: Tag) -> dict | None:
@@ -100,8 +100,8 @@ def parse_tracks_from_html(html: str) -> list[dict]:
     return tracks
 
 def scrape_tracks() -> list[dict]:
-    """Scrape tracks from the SOURCE_URL."""
-    response = httpx.get(SOURCE_URL)
+    """Scrape tracks from the SCRAPE_URL."""
+    response = httpx.get(SCRAPE_URL)
     response.raise_for_status()  # Ensure we raise an error for bad responses
     return parse_tracks_from_html(response.text)
 

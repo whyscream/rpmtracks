@@ -1,13 +1,21 @@
 from django.shortcuts import redirect
-from django.views.generic import ListView, RedirectView, DetailView
+from django.views.generic import ListView, RedirectView, DetailView, TemplateView
 
 from .forms import SelectReleaseForm
 from .models import Track, Release
+from .scraper import SCRAPE_URL
+
+
+class AboutView(TemplateView):
+    template_name = "about.html"
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["scrape_url"] = SCRAPE_URL
+        return ctx
 
 class TrackListView(ListView):
     template_name = "tracks/track_list.html"
     context_object_name = "tracks"
-    http_method_names = ["get", "post", "head", "options", "trace"]
 
     release = None
     select_release_form = None
