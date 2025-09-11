@@ -13,7 +13,7 @@ class ReleaseAdmin(admin.ModelAdmin):
 class TrackAdmin(admin.ModelAdmin):
     list_display = ("release", "number", "title", "author", "duration", "workout")
     list_display_links = ("number", "title", "author")
-    search_fields = ("title", "author", "cover_artist", "workout", "notes", "release__branding", "release__number")
+    search_fields = ("title", "author", "cover_artist", "workout", "remarks", "release__branding", "release__number")
     list_filter = ("release__branding", "workout", "number")
     ordering = ("-release__number", "number")
     readonly_fields = ("created_at", "updated_at")

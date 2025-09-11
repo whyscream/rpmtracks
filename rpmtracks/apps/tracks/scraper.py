@@ -159,16 +159,16 @@ def import_tracks():
             }
         )
 
-        # Only update fields 'workout' and 'notes' if they are not set
+        # Only update fields 'workout' and 'remarks' if they are not set
         track_updated = False
         if track.workout in [Track.Workout.UNKNOWN, Track.Workout.NONE]:
             track.workout = workout_str_to_enum(track_data["workout"])
             track_updated = True
-        if not track.notes and track_data["workout"]:
-            track.notes = track_data["workout"]
+        if not track.remarks and track_data["workout"]:
+            track.remarks = track_data["workout"]
             track_updated = True
         if track_updated:
-            track.save(update_fields=["workout", "notes"])
+            track.save(update_fields=["workout", "remarks"])
 
         if _track_created:
             logger.info(f"Created new track: {track} in release {release}")
