@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+from environs import Env
+
+
+env = Env()
+env.read_env()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +26,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ri5lpnoxk%5j-pwc)*lbyu=d&y8i!gze_1$=fhaa4l%&vqfeeq"
+SECRET_KEY = env.str("DJANGO_SECRET_KEY", "django-insecure-ri5lpnoxk%5j-pwc)*lbyu=d&y8i!gze_1$=fhaa4l%&vqfeeq")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", [])
+
+# Security settings
+SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", False)
+SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", 0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
+SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", False)
+SESSION_COOKIE_SECURE = env.bool("DJANGO_SESSION_COOKIE_SECURE", False)
+CSRF_COOKIE_SECURE = env.bool("DJANGO_CSRF_COOKIE_SECURE", False)
+
+
 
 
 # Application definition
@@ -74,10 +90,7 @@ WSGI_APPLICATION = "rpmtracks.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": env.dj_db_url("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
 }
 
 
@@ -149,12 +162,12 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO",
+        "level": env.str("DJANGO_LOG_LEVEL", "INFO"),
     },
     "loggers": {
         "apps": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": env.str("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
     },
