@@ -12,7 +12,7 @@
 <ul>
     {% for track in tracks %}
     <li>
-        <a href="#">{{ track.number }} - {{ track.title }} by {{ track.author }}</a>
+        <a href="{% url 'tracks:detail' release.number track.id %}">{{ track.number }} - {{ track.title }} by {{ track.author }}</a>
     </li>
     {% empty %}
     <li>No tracks available.</li>

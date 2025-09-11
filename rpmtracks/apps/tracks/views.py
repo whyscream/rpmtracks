@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-from django.views.generic import ListView, RedirectView
+from django.views.generic import ListView, RedirectView, DetailView
 
 from .forms import SelectReleaseForm
 from .models import Track, Release
@@ -38,3 +38,16 @@ class TrackListView(ListView):
             return redirect("tracks:list_by_release", release_number=form.cleaned_data["release"].number)
 
         return self.get(request, *args, **kwargs)
+
+
+class TrackDetailView(DetailView):
+    template_name = "tracks/track_detail.html"
+    context_object_name = "track"
+    http_method_names = ["get", "head", "options", "trace"]
+    model = Track
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["next_track"] = Track.objects.filter(release=self.object.release, number__gt=self.object.number).order_by("number").first()
+        ctx["previous_track"] = Track.objects.filter(release=self.object.release, number__lt=self.object.number).order_by("-number").first()
+        return ctx
