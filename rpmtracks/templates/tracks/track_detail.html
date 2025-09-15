@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Track: {{ track.title }} - {{ track.author }}{% endblock title %}
+{% block title %}RPM tracks - Track: {{ track.title }} - {{ track.author }}{% endblock title %}
 
 {% block content %}
-    <h1>{{ track.title }} by {{ track.author }}</h1>
+    <h1>{{ track.title }} - {{ track.author }}</h1>
     <p>Release: <a href="{% url 'tracks:list_by_release' track.release.number %}">{{ track.release }}</a></p>
     <p>Track number:
         {% if previous_track %}<a href="{% url 'tracks:detail' track.release.number previous_track.id %}"><i class="fa-solid fa-angle-left"></i></a>{% endif %}

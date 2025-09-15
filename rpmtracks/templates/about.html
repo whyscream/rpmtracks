@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 
-{%  block title %}RPM tracks - About{% endblock title %}
+{% block title %}RPM tracks - About{% endblock title %}
 
 {% block content %}
     <h1>About RPM tracks</h1>
-    <p>This website is a personal project to allow searching through RPM tracks. It is not affiliated with Les Mills International in any way.</p>
-    <p>Initial data on tracks and releases is collected from <a href="{{  scrape_url }}">{{  scrape_url }}</a>. Thank you for all the hard work.</p>
+    <p>This website is a personal project to allow searching through RPM tracks. Feel free to use it to find tracks to
+        suggest to your RPM trainer for a mix session, or whatever you feel like doing with it. It is not affiliated
+        with Les Mills International or My HealthClub in any way.</p>
+    <p>Initial data on tracks and releases is collected from <a href="{{  scrape_url }}">{{  scrape_url }}</a>. Thank
+        you for all the hard work.</p>
 {% endblock content %}
