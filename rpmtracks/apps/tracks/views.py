@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 from django.shortcuts import redirect
 from django.views.generic import ListView, RedirectView, DetailView, TemplateView, FormView
 
@@ -49,6 +51,8 @@ class TrackListView(ListView):
 
 
 class TrackDetailView(DetailView):
+    YOUTUBE_BASE_URL = "https://www.youtube.com/results?search_query="
+
     template_name = "tracks/track_detail.html"
     context_object_name = "track"
     http_method_names = ["get", "head", "options", "trace"]
@@ -58,6 +62,8 @@ class TrackDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["next_track"] = Track.objects.filter(release=self.object.release, number__gt=self.object.number).order_by("number").first()
         ctx["previous_track"] = Track.objects.filter(release=self.object.release, number__lt=self.object.number).order_by("-number").first()
+        youtube_search_query= f"{self.object.author} {self.object.title}"
+        ctx["youtube_search_url"] = f"{self.YOUTUBE_BASE_URL}{quote_plus(youtube_search_query)}"
         return ctx
 
 class SearchTracksView(FormView):
