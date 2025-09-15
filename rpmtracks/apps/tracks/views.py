@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
-from django.views.generic import ListView, RedirectView, DetailView, TemplateView
+from django.views.generic import ListView, RedirectView, DetailView, TemplateView, FormView
 
-from .forms import SelectReleaseForm
+from .forms import SelectReleaseForm, SearchTracksForm
 from .models import Track, Release
 from .scraper import SCRAPE_URL
 
@@ -59,3 +59,15 @@ class TrackDetailView(DetailView):
         ctx["next_track"] = Track.objects.filter(release=self.object.release, number__gt=self.object.number).order_by("number").first()
         ctx["previous_track"] = Track.objects.filter(release=self.object.release, number__lt=self.object.number).order_by("-number").first()
         return ctx
+
+class SearchTracksView(FormView):
+    template_name = "tracks/search.html"
+    form_class = SearchTracksForm
+    context_object_name = "tracks"
+
+    def form_valid(self, form):
+        query = form.cleaned_data["query"]
+        tracks = Track.objects.filter(title__icontains=query) | Track.objects.filter(author__icontains=query) | Track.objects.filter(cover_artist__icontains=query)
+        tracks = tracks.select_related("release").order_by("release__number", "number")
+
+        return self.render_to_response(self.get_context_data(tracks=tracks, form=form, query=query))

@@ -11,3 +11,11 @@ class SelectReleaseForm(forms.Form):
         empty_label=None,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
+
+class SearchTracksForm(forms.Form):
+    query = forms.CharField(
+        label="Search tracks",
+        max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter track artist or title"}),
+    )

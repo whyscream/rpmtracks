@@ -1,0 +1,30 @@
+{%  extends 'base.html' %}
+
+{% block title %}Search tracks{% endblock title %}
+
+{% block content %}
+
+    <h1>Search tracks</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Search</button>
+    </form>
+
+    {% if query %}
+        <h2>Search Results for "{{ query }}"</h2>
+        <ul>
+        {% for track in tracks %}
+            <li>
+                <a href="{% url 'tracks:detail' track.release.number track.id %}">{{ track.release }} - {{ track.number }} - {{ track.title }} by {{ track.author }}</a>
+            </li>
+        {% empty %}
+            <li>No tracks found.</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Please enter a search term to find tracks.</p>
+    {% endif %}
+
+{% endblock content %}
