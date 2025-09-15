@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import MinLengthValidator
 
 from .models import Release
 
@@ -18,4 +19,5 @@ class SearchTracksForm(forms.Form):
         label="Search tracks",
         max_length=100,
         widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter track artist or title"}),
+        validators=[MinLengthValidator(3)]
     )
