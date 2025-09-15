@@ -66,6 +66,7 @@ class TrackDetailView(DetailView):
         ctx["youtube_search_url"] = f"{self.YOUTUBE_BASE_URL}{quote_plus(youtube_search_query)}"
         return ctx
 
+
 class SearchTracksView(FormView):
     template_name = "tracks/search.html"
     form_class = SearchTracksForm
@@ -74,6 +75,6 @@ class SearchTracksView(FormView):
     def form_valid(self, form):
         query = form.cleaned_data["query"]
         tracks = Track.objects.filter(title__icontains=query) | Track.objects.filter(author__icontains=query) | Track.objects.filter(cover_artist__icontains=query)
-        tracks = tracks.select_related("release").order_by("release__number", "number")
+        tracks = tracks.select_related("release").order_by("-release__number", "number")
 
         return self.render_to_response(self.get_context_data(tracks=tracks, form=form, query=query))
