@@ -53,12 +53,12 @@ def parse_track(row: Tag) -> dict | None:
     release = None
     track_number = None
     # track id RPM or BB + all numerics is a normal track
-    if match := re.fullmatch(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>\d{2})", track_id):
+    if match := re.fullmatch(r"(?P<branding>RPM|BB)(?P<release>\d{1,3})(?P<track_number>\d{2})", track_id):
         branding = match.group("branding")
         release = match.group("release")
         track_number = match.group("track_number")
     # track id RPM + numeric + random string is a bonus track of sorts
-    elif match := re.fullmatch(r"(?P<branding>RPM|BB)(?P<release>\d+)(?P<track_number>.*)", track_id):
+    elif match := re.fullmatch(r"(?P<branding>RPM|BB)(?P<release>\d{1,3})(?P<track_number>[a-zA-Z0-9]{1,10})", track_id):
         branding = match.group("branding")
         release = match.group("release")
         track_number = match.group("track_number")
