@@ -10,26 +10,26 @@ class Migration(migrations.Migration):
     ]
 
     def populate_release_order(apps, schema_editor):
-        Release = apps.get_model("tracks", "Release")
+        Release = apps.get_model("tracks", "Release")  # noqa: S117
         for index, release in enumerate(Release.objects.order_by("number", "branding")):
             release.order = index + 1
             release.save(update_fields=["order"])
 
     def clear_release_order(apps, schema_editor):
-        Release = apps.get_model("tracks", "Release")
+        Release = apps.get_model("tracks", "Release")  # noqa: S117
         for release in Release.objects.all():
             release.order = None
             release.save(update_fields=["order"])
 
     def populate_track_order(apps, schema_editor):
-        Track = apps.get_model("tracks", "Track")
+        Track = apps.get_model("tracks", "Track")  # noqa: S117
         tracks = Track.objects.all().order_by("release__order", "number")
         for index, track in enumerate(tracks):
             track.order = index + 1
             track.save(update_fields=["order"])
 
     def clear_track_order(apps, schema_editor):
-        Track = apps.get_model("tracks", "Track")
+        Track = apps.get_model("tracks", "Track")  # noqa: S117
         for track in Track.objects.all():
             track.order = None
             track.save(update_fields=["order"])
