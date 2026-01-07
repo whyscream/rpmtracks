@@ -17,10 +17,21 @@ class Release(models.Model):
     release_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text="Timestamp when this record was created")
     updated_at = models.DateTimeField(auto_now=True, editable=False, help_text="Timestamp when this record was last updated")
-
+    order = models.IntegerField(null=True, blank=True, help_text="Optional field to specify custom ordering")
 
     def __str__(self):
         return f"{self.branding} {self.number:02d}"
+
+    def _next_order_id(self) -> int:
+        last_ordered_obj = self.__class__.objects.all().order_by("-order").first()
+        if last_ordered_obj and last_ordered_obj.order:
+            return last_ordered_obj.order + 1
+        return 1
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            self.order = self._next_order_id()
+        super().save(*args, **kwargs)
 
 
 class Track(models.Model):
@@ -48,6 +59,18 @@ class Track(models.Model):
     remarks = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text="Timestamp when this record was created")
     updated_at = models.DateTimeField(auto_now=True, editable=False, help_text="Timestamp when this record was last updated")
+    order = models.IntegerField(null=True, blank=True, help_text="Optional field to specify custom ordering")
 
     def __str__(self):
         return f"{self.release} - {self.number} - {self.title}"
+
+    def _next_order_id(self) -> int:
+        last_ordered_obj = self.__class__.objects.all().order_by("-order").first()
+        if last_ordered_obj and last_ordered_obj.order:
+            return last_ordered_obj.order + 1
+        return 1
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            self.order = self._next_order_id()
+        super().save(*args, **kwargs)
