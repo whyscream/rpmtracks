@@ -1,1 +1,1 @@
-Fontawesome version is fontawesome-free-7.0.1-web, downloaded from https://fontawesome.com
+Fontawesome version is fontawesome-free-7.1.0-web, downloaded from https://github.com/FortAwesome/Font-Awesome/releases/

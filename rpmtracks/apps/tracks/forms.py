@@ -6,7 +6,7 @@ from .models import Release
 
 class SelectReleaseForm(forms.Form):
     release = forms.ModelChoiceField(
-        queryset=Release.objects.all(),
+        queryset=Release.objects.all().order_by("-order"),
         to_field_name="number",
         label="Release",
         empty_label=None,

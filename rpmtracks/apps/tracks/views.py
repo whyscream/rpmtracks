@@ -1,7 +1,7 @@
 from urllib.parse import quote_plus
 
 from django.shortcuts import redirect
-from django.views.generic import ListView, RedirectView, DetailView, TemplateView, FormView
+from django.views.generic import ListView, DetailView, TemplateView, FormView
 
 from .forms import SelectReleaseForm, SearchTracksForm
 from .models import Track, Release
@@ -28,8 +28,8 @@ class TrackListView(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=object_list, **kwargs)
         ctx["release"] = self.release
-        ctx["next_release"] = Release.objects.filter(number__gt=self.release.number).order_by("number").first()
-        ctx["previous_release"] = Release.objects.filter(number__lt=self.release.number).order_by("-number").first()
+        ctx["next_release"] = Release.objects.filter(number__gt=self.release.number).order_by("order").first()
+        ctx["previous_release"] = Release.objects.filter(number__lt=self.release.number).order_by("-order").first()
         ctx["select_release_form"] = self.select_release_form
         return ctx
 
@@ -37,7 +37,7 @@ class TrackListView(ListView):
         if release_number is not None:
             self.release = Release.objects.get(number=release_number)
         else:
-            self.release = Release.objects.latest("number")
+            self.release = Release.objects.latest("order")
 
         self.select_release_form = SelectReleaseForm(initial={"release": self.release})
         return super().get(request, *args, **kwargs)
@@ -60,8 +60,8 @@ class TrackDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["next_track"] = Track.objects.filter(release=self.object.release, number__gt=self.object.number).order_by("number").first()
-        ctx["previous_track"] = Track.objects.filter(release=self.object.release, number__lt=self.object.number).order_by("-number").first()
+        ctx["next_track"] = Track.objects.filter(release=self.object.release, number__gt=self.object.number).order_by("order").first()
+        ctx["previous_track"] = Track.objects.filter(release=self.object.release, number__lt=self.object.number).order_by("-order").first()
         youtube_search_query= f"{self.object.author} {self.object.title}"
         ctx["youtube_search_url"] = f"{self.YOUTUBE_BASE_URL}{quote_plus(youtube_search_query)}"
         return ctx
@@ -75,6 +75,6 @@ class SearchTracksView(FormView):
     def form_valid(self, form):
         query = form.cleaned_data["query"]
         tracks = Track.objects.filter(title__icontains=query) | Track.objects.filter(author__icontains=query) | Track.objects.filter(cover_artist__icontains=query)
-        tracks = tracks.select_related("release").order_by("-release__number", "number")
+        tracks = tracks.select_related("release").order_by("-release__order", "order")
 
         return self.render_to_response(self.get_context_data(tracks=tracks, form=form, query=query))

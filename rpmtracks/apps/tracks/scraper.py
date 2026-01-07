@@ -140,6 +140,9 @@ def workout_str_to_enum(workout_str: str):
 def import_tracks():
     """Scrape tracks and save them to the database."""
     tracks_data = scrape_tracks()
+    # Sort tracks by release number and track number, so we can process them in order
+    tracks_data.sort(key=lambda x: (int(x["release"]), x["track_number"]))
+
     for track_data in tracks_data:
         release, _release_created = Release.objects.update_or_create(
             number=int(track_data["release"]),
